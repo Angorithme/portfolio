@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function resetHideTimer() {
       clearTimeout(hideTimeout);
       if (isPlaying) {
-        hideTimeout = setTimeout(hidePlayer, 2000);
+        hideTimeout = setTimeout(hidePlayer, 3000);
       }
     }
 
