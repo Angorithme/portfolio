@@ -26,41 +26,77 @@ document.addEventListener("DOMContentLoaded", () => {
   bodyObserver.observe(document.body, { childList: true, subtree: true });
 
 
-  // MP4 BACKGROUND
+  // ZOOM IN SHOWCASE - THE CODE
   // -------------------------------------------------------------
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxVideo = document.getElementById("lightbox-video");
+  const lightboxVideoSrc = document.getElementById("lightbox-video-src");
   const lightboxClose = document.getElementById("lightbox-close");
 
+  // EVENT DELEGATION: Listen to clicks on both <img> and <video> elements inside <main>
   document.addEventListener("click", (e) => {
-    if (e.target.tagName === "IMG" && e.target.closest("main")) {
-      lightboxImg.src = e.target.src;
-      lightboxImg.alt = e.target.alt || "Expanded Image";
+    const target = e.target;
+    const isMainMedia = (target.tagName === "IMG" || target.tagName === "VIDEO") && target.closest("main");
 
+    // Ignore clicks on background ambient video or the lightbox media itself
+    if (isMainMedia && target.id !== "lightbox-img" && target.id !== "lightbox-video") {
+
+      if (target.tagName === "IMG") {
+        // Show Image, Hide Video
+        lightboxVideo.classList.add("hidden");
+        lightboxImg.src = target.src;
+        lightboxImg.alt = target.alt || "Expanded Image";
+        lightboxImg.classList.remove("hidden");
+      } else if (target.tagName === "VIDEO") {
+        // Show Video, Hide Image
+        lightboxImg.classList.add("hidden");
+
+        // Find current video source URL
+        const src = target.currentSrc || target.querySelector("source")?.src;
+        lightboxVideoSrc.src = src;
+        lightboxVideo.load();
+        lightboxVideo.play();
+        lightboxVideo.classList.remove("hidden");
+      }
+
+      // Display Modal with Animations
       lightbox.classList.remove("hidden");
       setTimeout(() => {
         lightbox.classList.remove("opacity-0");
         lightboxImg.classList.remove("scale-95");
         lightboxImg.classList.add("scale-100");
+        lightboxVideo.classList.remove("scale-95");
+        lightboxVideo.classList.add("scale-100");
       }, 10);
 
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = "hidden"; // Pause main page scrolling
     }
   });
 
+  // Function to close lightbox
   const closeLightbox = () => {
     if (!lightbox) return;
+
     lightbox.classList.add("opacity-0");
     lightboxImg.classList.remove("scale-100");
     lightboxImg.classList.add("scale-95");
+    lightboxVideo.classList.remove("scale-100");
+    lightboxVideo.classList.add("scale-95");
 
     setTimeout(() => {
       lightbox.classList.add("hidden");
+
+      // Clean up sources and stop video playback
       lightboxImg.src = "";
+      lightboxVideo.pause();
+      lightboxVideoSrc.src = "";
+
       document.body.style.overflow = "auto";
     }, 300);
   };
 
+  // Close triggers
   if (lightbox) {
     if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
 
@@ -82,19 +118,24 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const container1 = document.getElementById("section1-container");
   const container2 = document.getElementById("section2-container");
-  const container3 = document.getElementById("section3-container");
+  const containerSocials = document.getElementById("sectionSocials-container");
+  const containerDescription = document.getElementById("sectionDescription-container");
 
   const response1 = await fetch("section1.html");
   const response2 = await fetch("section2.html");
-  const response3 = await fetch("section3.html");
+  const response3 = await fetch("sectionSocials.html");
+  const response4 = await fetch("sectionDescription.html");
+
 
   const html1 = await response1.text();
   const html2 = await response2.text();
   const html3 = await response3.text();
+  const html4 = await response4.text();
 
   container1.innerHTML = html1;
   container2.innerHTML = html2;
-  container3.innerHTML = html3;
+  containerSocials.innerHTML = html3;
+  containerDescription.innerHTML = html4;
 });
 
 // -------------------------------------------------------------
